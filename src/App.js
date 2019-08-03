@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react'
-import styled from 'styled-components'
-import processData from './helpers/processData'
-const dataset = require('./data.json')
+import React, { useState, useEffect } from "react";
+import styled from "styled-components";
+import processData from "./helpers/processData";
+const dataset = require("./data.json");
 
 const LibraryItem = styled.li`
   display: flex;
@@ -15,18 +15,19 @@ const LibraryItem = styled.li`
   width: 300px;
   height: 160px;
   overflow: hidden;
-`
-const Title = styled.h3``
-const Author = styled.span``
-const Genre = styled.span``
-const Date = styled.span``
+`;
 
-const Authors = styled.div``
+const Title = styled.h3``;
+const Author = styled.span``;
+const Genre = styled.span``;
+const Date = styled.span``;
+
+const Authors = styled.div``;
 
 const Library = styled.div`
   display: flex;
   flex-wrap: wrap;
-`
+`;
 
 const Book = ({ title, author, genre, publishDate }) => (
   <LibraryItem>
@@ -35,48 +36,51 @@ const Book = ({ title, author, genre, publishDate }) => (
     <Genre>{genre}</Genre>
     <Date>{publishDate}</Date>
   </LibraryItem>
-)
+);
 
-function App () {
-  const [state, setState] = useState(null)
-  const [library, setLibrary] = useState(null)
-  const [authors, setAuthors] = useState(null)
-  const [isFetching, setIsFetching] = useState(false)
+function App() {
+  const [state, setState] = useState(null);
+  const [library, setLibrary] = useState(null);
+  const [authors, setAuthors] = useState(null);
+  const [isFetching, setIsFetching] = useState(false);
 
   useEffect(() => {
-    const processedData = processData(dataset)
-    setLibrary(processedData.library)
-    setAuthors(processedData.authors)
-    setState(processedData.library.shift())
-  }, [])
+    const processedData = processData(dataset);
+    setLibrary(processedData.library);
+    setAuthors(processedData.authors);
+    setState(processedData.library.shift());
+  }, []);
 
   const handleScroll = () => {
     if (
       window.innerHeight + document.documentElement.scrollTop !==
       document.documentElement.offsetHeight
     ) {
-      return
+      return;
     }
-    setIsFetching(true)
-  }
-
-  useEffect(
-    () => {
-      if (!isFetching) return
-      // setState([...library, ...library.shift()])
-      // fetchMoreListItems();
-    },
-    [isFetching]
-  )
+    setIsFetching(true);
+  };
 
   useEffect(() => {
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+    if (!isFetching) return;
+    setState([...state, ...library.shift()]);
+    setIsFetching(false);
+  }, [isFetching]);
+
+  useEffect(() => {
+    console.log("STATE", state);
+  }, [state]);
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return state ? (
     <>
       <h1>Library</h1>
+      <button>Sort by title</button>
+      <button>Sort by author</button>
       <Library>
         {state.map((i, index) => (
           <Book {...i} key={index} />
@@ -86,7 +90,7 @@ function App () {
     </>
   ) : (
     <span>loading...</span>
-  )
+  );
 }
 
-export default App
+export default App;
