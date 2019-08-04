@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
+import Header, {
+  GenderChoice,
+  GenreFilter,
+  SortButton
+} from "./components/Header";
 import Book from "./components/Book";
 import { splitLibrary } from "./helpers/processData";
 import {
@@ -35,7 +40,7 @@ function App() {
     setIsLoading(true);
     const sortedLibraryByName = getSortedLibraryByName(data.library);
     const splittedLibrary = updateDataset(sortedLibraryByName);
-    setState([...splittedLibrary[lastPageLoaded]]);
+    setState(splittedLibrary[lastPageLoaded]);
     setIsLoading(false);
   };
 
@@ -47,7 +52,7 @@ function App() {
     if (splittedLibrary.length === 0) {
       setState([]);
     } else {
-      setState([...splittedLibrary[lastPageLoaded]]);
+      setState(splittedLibrary[lastPageLoaded]);
     }
 
     setIsLoading(false);
@@ -61,7 +66,7 @@ function App() {
     if (splittedLibrary.length === 0) {
       setState([]);
     } else {
-      setState([...splittedLibrary[lastPageLoaded]]);
+      setState(splittedLibrary[lastPageLoaded]);
     }
 
     setIsLoading(false);
@@ -79,7 +84,7 @@ function App() {
     if (splittedLibrary.length === 0) {
       setState([]);
     } else {
-      setState([...splittedLibrary[lastPageLoaded]]);
+      setState(splittedLibrary[lastPageLoaded]);
     }
 
     setIsLoading(false);
@@ -115,37 +120,35 @@ function App() {
     return () => window.removeEventListener("scroll", handleScroll);
   };
 
-  useEffect(handleLoadInitialData, []);
+  useEffect(() => {
+    handleLoadInitialData();
+    handleInfiniteScroll();
+  }, []);
+
   useEffect(handleFetchNewData, [isFetching]);
-  useEffect(handleInfiniteScroll, []);
 
   return state ? (
     isLoading ? (
       <div>Loading data...</div>
     ) : (
       <>
-        <h1>Library</h1>
-        <div>
-          <input
-            type="radio"
-            id="female"
-            name="gender"
-            value="female"
+        <Header>
+          <GenderChoice
+            gender="female"
             onClick={() => filterByAuthorGender("female")}
           />
-          <label for="female">Female</label>
-          <input
-            type="radio"
-            id="male"
-            name="gender"
-            value="male"
+          <GenderChoice
+            gender="male"
             onClick={() => filterByAuthorGender("male")}
           />
-          <label for="male">Male</label>
-        </div>
-        <input type="text" onBlur={e => filterByGenre(e.target.value)} />
-        <button onClick={sortByTitle}>Sort by title</button>
-        <button onClick={sortByAuthor}>Sort by author</button>
+          <GenderChoice
+            gender="both"
+            onClick={() => filterByAuthorGender("both")}
+          />
+          <GenreFilter onChange={e => filterByGenre(e.target.value)} />
+          <SortButton onClick={sortByTitle}>Sort by title</SortButton>
+          <SortButton onClick={sortByAuthor}>Sort by author</SortButton>
+        </Header>
         {state.length ? (
           <Library>
             {state.map((i, index) => (
@@ -164,7 +167,7 @@ function App() {
       </>
     )
   ) : (
-    <span>loading...</span>
+    <span>Loading...</span>
   );
 }
 

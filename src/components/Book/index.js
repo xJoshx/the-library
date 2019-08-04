@@ -9,16 +9,17 @@ const LibraryItem = styled.li`
   flex-direction: column;
   margin-right: 16px;
   margin-bottom: 16px;
-  padding: 8px 16px 0 16px;
+  padding: 16px;
   box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.2),
     0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 2px 1px -1px rgba(0, 0, 0, 0.12);
   border-radius: 4px;
   width: 300px;
-  height: 160px;
   overflow: hidden;
 `;
 
-const Title = styled.h3``;
+const Title = styled.h3`
+  margin: 0 0 16px;
+`;
 const Author = styled.span``;
 const Genre = styled.span``;
 const PublishDate = styled.span``;
@@ -32,7 +33,7 @@ const checkIfHalloween = publishDate => {
 
 const Book = ({ title, author, genre, publishDate, authorGender }) => (
   <LibraryItem>
-    {checkIfHalloween(publishDate) && (
+    {checkIfHalloween(publishDate) && genre === "horror" && (
       <HalloweenIndicator>👻</HalloweenIndicator>
     )}
     <Title>{title}</Title>

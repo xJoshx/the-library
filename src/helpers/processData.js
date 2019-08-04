@@ -1,4 +1,4 @@
-const NUMBER_OF_CHUNKS = 10;
+const NUMBER_OF_CHUNKS = 100;
 
 export const splitLibrary = library => {
   const dataSplitted = [];
