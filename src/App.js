@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import processData from "./helpers/processData";
-const dataset = require("./data.json");
+import { splitLibrary } from "./helpers/processData";
+const { data } = require("./data.json");
 
 const LibraryItem = styled.li`
   display: flex;
@@ -29,10 +29,12 @@ const Library = styled.div`
   flex-wrap: wrap;
 `;
 
-const Book = ({ title, author, genre, publishDate }) => (
+const Book = ({ title, author, genre, publishDate, authorGender }) => (
   <LibraryItem>
     <Title>{title}</Title>
-    <Author>{author}</Author>
+    <Author>
+      {author} - {authorGender}
+    </Author>
     <Genre>{genre}</Genre>
     <Date>{publishDate}</Date>
   </LibraryItem>
@@ -41,14 +43,14 @@ const Book = ({ title, author, genre, publishDate }) => (
 function App() {
   const [state, setState] = useState(null);
   const [library, setLibrary] = useState(null);
-  const [authors, setAuthors] = useState(null);
   const [isFetching, setIsFetching] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [lastPageLoaded, setlastPageLoaded] = useState(0);
 
   useEffect(() => {
-    const processedData = processData(dataset);
-    setLibrary(processedData.library);
-    setAuthors(processedData.authors);
-    setState(processedData.library.shift());
+    const splittedLibrary = splitLibrary(data.library);
+    setLibrary(splittedLibrary);
+    setState(splittedLibrary[0]);
   }, []);
 
   const handleScroll = () => {
@@ -61,33 +63,141 @@ function App() {
     setIsFetching(true);
   };
 
-  useEffect(() => {
-    if (!isFetching) return;
-    setState([...state, ...library.shift()]);
-    setIsFetching(false);
-  }, [isFetching]);
+  const sortByTitle = () => {
+    setIsLoading(true);
+    const sortedLibraryByName = data.library.sort((a, b) => {
+      if (a.title < b.title) {
+        return -1;
+      }
+      if (a.title > b.title) {
+        return 1;
+      }
+      return 0;
+    });
+    const splittedLibrary = splitLibrary(sortedLibraryByName);
+    setLibrary(splittedLibrary);
+    setlastPageLoaded(0);
+    setState([...splittedLibrary[lastPageLoaded]]);
+    setIsLoading(false);
+  };
+
+  const sortByAuthor = () => {
+    setIsLoading(true);
+    const sortedLibraryByAuthor = data.library.sort((a, b) => {
+      if (a.author < b.author) {
+        return -1;
+      }
+      if (a.author > b.author) {
+        return 1;
+      }
+      return 0;
+    });
+
+    const splittedLibrary = splitLibrary(sortedLibraryByAuthor);
+    setLibrary(splittedLibrary);
+    setlastPageLoaded(0);
+    if (splittedLibrary.length === 0) {
+      setState([]);
+    } else {
+      setState([...splittedLibrary[lastPageLoaded]]);
+    }
+    setIsLoading(false);
+  };
+
+  const filterByGenre = genre => {
+    setIsLoading(true);
+    const filteredLibraryByGenre = data.library.filter(
+      i => i.genre === genre.toLowerCase()
+    );
+    const splittedLibrary = splitLibrary(filteredLibraryByGenre);
+    setLibrary(splittedLibrary);
+    setlastPageLoaded(0);
+    if (splittedLibrary.length === 0) {
+      setState([]);
+    } else {
+      setState([...splittedLibrary[lastPageLoaded]]);
+    }
+    setIsLoading(false);
+  };
+
+  const getAuthorGender = author => {
+    const { gender } = data.authors.find(i => i.name === author);
+    return gender;
+  };
+  const filterByAuthorGender = gender => {
+    setIsLoading(true);
+    const filteredLibraryByAuthorGender = data.library.filter(
+      i => getAuthorGender(i.author) === gender.toLowerCase()
+    );
+    const splittedLibrary = splitLibrary(filteredLibraryByAuthorGender);
+    setLibrary(splittedLibrary);
+    setlastPageLoaded(0);
+    if (splittedLibrary.length === 0) {
+      setState([]);
+    } else {
+      setState([...splittedLibrary[lastPageLoaded]]);
+    }
+    setIsLoading(false);
+  };
 
   useEffect(() => {
-    console.log("STATE", state);
-  }, [state]);
+    if (!isFetching) return;
+    setState([...state, ...library[lastPageLoaded]]);
+    setlastPageLoaded(lastPageLoaded + 1);
+    setIsFetching(false);
+  }, [isFetching]);
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => console.log(state), [state]);
+
   return state ? (
-    <>
-      <h1>Library</h1>
-      <button>Sort by title</button>
-      <button>Sort by author</button>
-      <Library>
-        {state.map((i, index) => (
-          <Book {...i} key={index} />
-        ))}
-      </Library>
-      {isFetching && <div>Fetching more items...</div>}
-    </>
+    isLoading ? (
+      <div>Loading data...</div>
+    ) : (
+      <>
+        <h1>Library</h1>
+        <div>
+          <input
+            type="radio"
+            id="female"
+            name="gender"
+            value="female"
+            onClick={() => filterByAuthorGender("female")}
+          />
+          <label for="female">Female</label>
+          <input
+            type="radio"
+            id="male"
+            name="gender"
+            value="male"
+            onClick={() => filterByAuthorGender("male")}
+          />
+          <label for="male">Male</label>
+        </div>
+        <input type="text" onBlur={e => filterByGenre(e.target.value)} />
+        <button onClick={sortByTitle}>Sort by title</button>
+        <button onClick={sortByAuthor}>Sort by author</button>
+        {state.length ? (
+          <Library>
+            {state.map((i, index) => (
+              <Book
+                {...i}
+                authorGender={getAuthorGender(i.author)}
+                key={index}
+              />
+            ))}
+          </Library>
+        ) : (
+          <div>Ooops, we couldn't find anything mathing those params :(</div>
+        )}
+
+        {isFetching && <div>Fetching more items...</div>}
+      </>
+    )
   ) : (
     <span>loading...</span>
   );
