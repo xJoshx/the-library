@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
+import { format } from "date-fns";
 import { splitLibrary } from "./helpers/processData";
 const { data } = require("./data.json");
+const HALLOWEEN_DATE = "31/10";
 
 const LibraryItem = styled.li`
   display: flex;
@@ -20,7 +22,7 @@ const LibraryItem = styled.li`
 const Title = styled.h3``;
 const Author = styled.span``;
 const Genre = styled.span``;
-const Date = styled.span``;
+const PublishDate = styled.span``;
 
 const Authors = styled.div``;
 
@@ -29,14 +31,25 @@ const Library = styled.div`
   flex-wrap: wrap;
 `;
 
+const checkIfHalloween = publishDate => {
+  const formattedDate = format(publishDate, "DD/MM");
+
+  return formattedDate === HALLOWEEN_DATE;
+};
+
+const HalloweenIndicator = styled.span``;
+
 const Book = ({ title, author, genre, publishDate, authorGender }) => (
   <LibraryItem>
+    {checkIfHalloween(publishDate) && (
+      <HalloweenIndicator>👻</HalloweenIndicator>
+    )}
     <Title>{title}</Title>
     <Author>
       {author} - {authorGender}
     </Author>
     <Genre>{genre}</Genre>
-    <Date>{publishDate}</Date>
+    <PublishDate>{format(publishDate, "DD/MM/YYYY")}</PublishDate>
   </LibraryItem>
 );
 
