@@ -1,57 +1,20 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { format } from "date-fns";
+import Book from "./components/Book";
 import { splitLibrary } from "./helpers/processData";
+import {
+  filterLibraryByGenre,
+  filterLibraryByAuthorGenre,
+  getAuthorGender,
+  getSortedLibraryByName,
+  getSortedLibraryByAuthor
+} from "./helpers";
 const { data } = require("./data.json");
-const HALLOWEEN_DATE = "31/10";
-
-const LibraryItem = styled.li`
-  display: flex;
-  flex-direction: column;
-  margin-right: 16px;
-  margin-bottom: 16px;
-  padding: 8px 16px 0 16px;
-  box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.2),
-    0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 2px 1px -1px rgba(0, 0, 0, 0.12);
-  border-radius: 4px;
-  width: 300px;
-  height: 160px;
-  overflow: hidden;
-`;
-
-const Title = styled.h3``;
-const Author = styled.span``;
-const Genre = styled.span``;
-const PublishDate = styled.span``;
-
-const Authors = styled.div``;
 
 const Library = styled.div`
   display: flex;
   flex-wrap: wrap;
 `;
-
-const checkIfHalloween = publishDate => {
-  const formattedDate = format(publishDate, "DD/MM");
-
-  return formattedDate === HALLOWEEN_DATE;
-};
-
-const HalloweenIndicator = styled.span``;
-
-const Book = ({ title, author, genre, publishDate, authorGender }) => (
-  <LibraryItem>
-    {checkIfHalloween(publishDate) && (
-      <HalloweenIndicator>👻</HalloweenIndicator>
-    )}
-    <Title>{title}</Title>
-    <Author>
-      {author} - {authorGender}
-    </Author>
-    <Genre>{genre}</Genre>
-    <PublishDate>{format(publishDate, "DD/MM/YYYY")}</PublishDate>
-  </LibraryItem>
-);
 
 function App() {
   const [state, setState] = useState(null);
@@ -60,11 +23,72 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [lastPageLoaded, setlastPageLoaded] = useState(0);
 
-  useEffect(() => {
-    const splittedLibrary = splitLibrary(data.library);
+  const updateDataset = data => {
+    const splittedLibrary = splitLibrary(data);
     setLibrary(splittedLibrary);
+    setlastPageLoaded(0);
+
+    return splittedLibrary;
+  };
+
+  const sortByTitle = () => {
+    setIsLoading(true);
+    const sortedLibraryByName = getSortedLibraryByName(data.library);
+    const splittedLibrary = updateDataset(sortedLibraryByName);
+    setState([...splittedLibrary[lastPageLoaded]]);
+    setIsLoading(false);
+  };
+
+  const sortByAuthor = () => {
+    setIsLoading(true);
+    const sortedLibraryByAuthor = getSortedLibraryByAuthor(data.library);
+    const splittedLibrary = updateDataset(sortedLibraryByAuthor);
+
+    if (splittedLibrary.length === 0) {
+      setState([]);
+    } else {
+      setState([...splittedLibrary[lastPageLoaded]]);
+    }
+
+    setIsLoading(false);
+  };
+
+  const filterByGenre = genre => {
+    setIsLoading(true);
+    const filteredLibraryByGenre = filterLibraryByGenre(data.library, genre);
+    const splittedLibrary = updateDataset(filteredLibraryByGenre);
+
+    if (splittedLibrary.length === 0) {
+      setState([]);
+    } else {
+      setState([...splittedLibrary[lastPageLoaded]]);
+    }
+
+    setIsLoading(false);
+  };
+
+  const filterByAuthorGender = gender => {
+    setIsLoading(true);
+    const filteredLibraryByAuthorGender = filterLibraryByAuthorGenre(
+      data.library,
+      data.authors,
+      gender
+    );
+    const splittedLibrary = updateDataset(filteredLibraryByAuthorGender);
+
+    if (splittedLibrary.length === 0) {
+      setState([]);
+    } else {
+      setState([...splittedLibrary[lastPageLoaded]]);
+    }
+
+    setIsLoading(false);
+  };
+
+  const handleLoadInitialData = () => {
+    const splittedLibrary = updateDataset(data.library);
     setState(splittedLibrary[0]);
-  }, []);
+  };
 
   const handleScroll = () => {
     if (
@@ -73,99 +97,27 @@ function App() {
     ) {
       return;
     }
+
     setIsFetching(true);
   };
 
-  const sortByTitle = () => {
-    setIsLoading(true);
-    const sortedLibraryByName = data.library.sort((a, b) => {
-      if (a.title < b.title) {
-        return -1;
-      }
-      if (a.title > b.title) {
-        return 1;
-      }
-      return 0;
-    });
-    const splittedLibrary = splitLibrary(sortedLibraryByName);
-    setLibrary(splittedLibrary);
-    setlastPageLoaded(0);
-    setState([...splittedLibrary[lastPageLoaded]]);
-    setIsLoading(false);
-  };
-
-  const sortByAuthor = () => {
-    setIsLoading(true);
-    const sortedLibraryByAuthor = data.library.sort((a, b) => {
-      if (a.author < b.author) {
-        return -1;
-      }
-      if (a.author > b.author) {
-        return 1;
-      }
-      return 0;
-    });
-
-    const splittedLibrary = splitLibrary(sortedLibraryByAuthor);
-    setLibrary(splittedLibrary);
-    setlastPageLoaded(0);
-    if (splittedLibrary.length === 0) {
-      setState([]);
-    } else {
-      setState([...splittedLibrary[lastPageLoaded]]);
-    }
-    setIsLoading(false);
-  };
-
-  const filterByGenre = genre => {
-    setIsLoading(true);
-    const filteredLibraryByGenre = data.library.filter(
-      i => i.genre === genre.toLowerCase()
-    );
-    const splittedLibrary = splitLibrary(filteredLibraryByGenre);
-    setLibrary(splittedLibrary);
-    setlastPageLoaded(0);
-    if (splittedLibrary.length === 0) {
-      setState([]);
-    } else {
-      setState([...splittedLibrary[lastPageLoaded]]);
-    }
-    setIsLoading(false);
-  };
-
-  const getAuthorGender = author => {
-    const { gender } = data.authors.find(i => i.name === author);
-    return gender;
-  };
-  const filterByAuthorGender = gender => {
-    setIsLoading(true);
-    const filteredLibraryByAuthorGender = data.library.filter(
-      i => getAuthorGender(i.author) === gender.toLowerCase()
-    );
-    const splittedLibrary = splitLibrary(filteredLibraryByAuthorGender);
-    setLibrary(splittedLibrary);
-    setlastPageLoaded(0);
-    if (splittedLibrary.length === 0) {
-      setState([]);
-    } else {
-      setState([...splittedLibrary[lastPageLoaded]]);
-    }
-    setIsLoading(false);
-  };
-
-  useEffect(() => {
+  const handleFetchNewData = () => {
     if (!isFetching) return;
-    setState([...state, ...library[lastPageLoaded]]);
-    setlastPageLoaded(lastPageLoaded + 1);
+    if (library[lastPageLoaded]) {
+      setState([...state, ...library[lastPageLoaded]]);
+      setlastPageLoaded(lastPageLoaded + 1);
+    }
     setIsFetching(false);
-  }, [isFetching]);
+  };
 
-  useEffect(() => {
+  const handleInfiniteScroll = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  };
 
-  useEffect(() => console.log(state), [state]);
+  useEffect(handleLoadInitialData, []);
+  useEffect(handleFetchNewData, [isFetching]);
+  useEffect(handleInfiniteScroll, []);
 
   return state ? (
     isLoading ? (
@@ -199,7 +151,7 @@ function App() {
             {state.map((i, index) => (
               <Book
                 {...i}
-                authorGender={getAuthorGender(i.author)}
+                authorGender={getAuthorGender(data.authors, i.author)}
                 key={index}
               />
             ))}

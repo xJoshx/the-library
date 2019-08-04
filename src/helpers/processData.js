@@ -1,4 +1,4 @@
-const NUMBER_OF_CHUNKS = 100;
+const NUMBER_OF_CHUNKS = 10;
 
 export const splitLibrary = library => {
   const dataSplitted = [];
@@ -6,7 +6,6 @@ export const splitLibrary = library => {
   for (let i = 0; i < library.length; i += NUMBER_OF_CHUNKS) {
     dataSplitted.push(library.slice(i, i + NUMBER_OF_CHUNKS));
   }
-
   return dataSplitted;
 };
 
