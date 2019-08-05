@@ -4,29 +4,41 @@ const GENRES = ["any", "horror", "finance", "thriller", "art", "health"];
 const HeaderWrapper = styled.div`
   margin-bottom: 32px;
 `;
+
 const Title = styled.h1``;
+
 const RadioButton = styled.input.attrs(({ gender }) => ({
   type: "radio",
   id: gender,
   name: "gender",
   value: gender
 }))``;
+
 const Label = styled.label`
   text-transform: capitalize;
 `;
 
 export const GenderChoice = ({ gender, onClick, isDefault }) => (
   <>
-    <Label for={gender}>{gender}</Label>
-    <RadioButton gender={gender} onClick={onClick} checked={isDefault} />
+    <Label htmlFor={gender}>{gender}</Label>
+    <RadioButton
+      data-testid="radio-button"
+      gender={gender}
+      onClick={onClick}
+      checked={isDefault}
+    />
   </>
 );
+
 const GenreFilterInput = styled.select``;
+
 export const GenreFilter = ({ onChange }) => (
   <>
     <GenreFilterInput onChange={onChange}>
       {GENRES.map(v => (
-        <option value={v}>{v}</option>
+        <option key={`key-${v}`} value={v} data-testid={`option-${v}`}>
+          {v}
+        </option>
       ))}
     </GenreFilterInput>
   </>

@@ -50,7 +50,7 @@ const generateBooks = (authors, number) => {
 };
 
 const AUTHORS_LIST = generateAuthors(AUTHORS_NAMES.length);
-const LIBRARY = generateBooks(AUTHORS_LIST, 1000000);
+const LIBRARY = generateBooks(AUTHORS_LIST, 10);
 const DATA = {
   data: {
     authors: AUTHORS_LIST,

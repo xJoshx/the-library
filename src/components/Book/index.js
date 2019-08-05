@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { format } from "date-fns";
+import { format, getDay, endOfMonth, subDays, lastDayOfYear } from "date-fns";
 
 const HALLOWEEN_DATE = "31/10";
 

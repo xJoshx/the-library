@@ -127,6 +127,19 @@ function App() {
 
   useEffect(handleFetchNewData, [isFetching]);
 
+  const checkIflastFridayForMonth = date => {
+    const lastDay = getDay(startOfDay(endOfMonth(date)));
+
+    switch (lastDay) {
+      case 6:
+        return subDays(1);
+      default:
+        return subDays(getDay(lastDay) + 2);
+    }
+  };
+
+  const getLastFridaysOfTheMonth = () => {};
+
   return state ? (
     isLoading ? (
       <div>Loading data...</div>
