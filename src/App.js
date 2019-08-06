@@ -14,7 +14,7 @@ import {
   getSortedLibraryByName,
   getSortedLibraryByAuthor
 } from "./helpers";
-const { data } = require("./data.json");
+const { data } = require("./server/data.json");
 
 const Library = styled.div`
   display: flex;

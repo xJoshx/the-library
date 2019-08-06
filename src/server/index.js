@@ -1,6 +1,8 @@
 var fs = require("fs");
 var faker = require("faker");
 
+const NUMBER_OF_BOOKS = 1000000;
+
 const GENRES = ["horror", "finance", "thriller", "art", "health"];
 const AUTHORS_NAMES = [
   faker.name.findName(),
@@ -50,7 +52,7 @@ const generateBooks = (authors, number) => {
 };
 
 const AUTHORS_LIST = generateAuthors(AUTHORS_NAMES.length);
-const LIBRARY = generateBooks(AUTHORS_LIST, 10);
+const LIBRARY = generateBooks(AUTHORS_LIST, NUMBER_OF_BOOKS);
 const DATA = {
   data: {
     authors: AUTHORS_LIST,
@@ -59,7 +61,7 @@ const DATA = {
 };
 
 const dataset = JSON.stringify(DATA);
-fs.writeFile("data.json", dataset, err => {
+fs.writeFile("src/server/data.json", dataset, err => {
   if (err) throw err;
   console.log("The file has been saved!");
 });
