@@ -35,13 +35,14 @@ describe("Header component", () => {
 
 it("should display the header with a GenreFilter if provided", () => {
   const mockedFunction = { onChange: jest.fn };
-  const spy = jest.spyOn(mockedFunction, "onChange");
-  const { getByText, getByTestId } = renderComponent({
+  const { getByText } = renderComponent({
     children: <GenreFilter onChange={mockedFunction.onChange} />
   });
-  expect(getByText("any"));
-  fireEvent.change(getByTestId("option-horror"));
-  expect(spy).toHaveBeenCalled();
+  const selectElement = getByText("any");
+  fireEvent.change(selectElement, {
+    target: { value: "horror" }
+  });
+  expect(selectElement.value).toBe("horror");
 });
 
 function triggerClick(query, element) {
