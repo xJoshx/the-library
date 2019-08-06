@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import { format, getDay, endOfMonth, subDays, lastDayOfYear } from "date-fns";
+import { format } from "date-fns";
+import checkIflastFridayForMonth from "../../helpers/checkIfLastFridayOfTheMonth";
 
 const HALLOWEEN_DATE = "31/10";
 
@@ -24,6 +25,7 @@ const Author = styled.span``;
 const Genre = styled.span``;
 const PublishDate = styled.span``;
 const HalloweenIndicator = styled.span``;
+const FinanceIndicator = styled.span``;
 
 const checkIfHalloween = publishDate => {
   const formattedDate = format(publishDate, "DD/MM");
@@ -35,6 +37,9 @@ const Book = ({ title, author, genre, publishDate, authorGender }) => (
   <LibraryItem>
     {checkIfHalloween(publishDate) && genre === "horror" && (
       <HalloweenIndicator>👻</HalloweenIndicator>
+    )}
+    {checkIflastFridayForMonth(publishDate) && genre === "finance" && (
+      <FinanceIndicator>🤑</FinanceIndicator>
     )}
     <Title>{title}</Title>
     <Author>
