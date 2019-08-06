@@ -57,5 +57,24 @@ describe("Book component", () => {
     expect(getByText(/art/));
     expect(getByText(/31\/10\/2019/));
   });
-  it("should show the indicator when it's last friday of the month and it's finance genre", () => {});
+  it("should show the indicator when it's last friday of the month and it's finance genre", () => {
+    const { getByText, queryByText } = renderComponent({
+      genre: "finance",
+      publishDate: new Date(2019, 9, 25)
+    });
+    expect(queryByText(/🤑/));
+    expect(getByText(/Rachael Welch/));
+    expect(getByText(/finance/));
+    expect(getByText(/25\/10\/2019/));
+  });
+  it("should NOT show the indicator when it's last friday of the month and it's finance genre", () => {
+    const { getByText, queryByText } = renderComponent({
+      genre: "art",
+      publishDate: new Date(2019, 9, 25)
+    });
+    expect(queryByText(/🤑/)).toBeNull();
+    expect(getByText(/Rachael Welch/));
+    expect(getByText(/art/));
+    expect(getByText(/25\/10\/2019/));
+  });
 });
